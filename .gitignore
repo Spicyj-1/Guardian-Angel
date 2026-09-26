@@ -1,0 +1,27 @@
+# Secrets — never commit to public repos
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.jks
+google-services.json
+GoogleService-Info.plist
+*credentials*.json
+*secret*.json
+*token*.json
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.idea/
+.vscode/* 
+!/vscode/extensions.json
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
