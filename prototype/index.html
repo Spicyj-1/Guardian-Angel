@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guardian Angel — Local Prototype (Phase 2)</title>
+<style>
+:root{--bg:#F2F7F6;--navy:#0B2A3A;--teal:#0E9F8A;--card:#fff;--txt:#0F2433;--mut:#5B7288;--line:#E2EDEB;--crit:#DC2626}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;font-size:15px}
+.wrap{max-width:720px;margin:auto;padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+h1{color:var(--navy);font-size:24px;margin:4px 0}h2{color:var(--navy);font-size:17px;margin:4px 0}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:#DFF7F1;color:#0B7E6E;border:1px solid #BDE9DF}
+.badge.off{background:#FDE2E2;color:#991B1B;border-color:#F5B5B5}
+.btn{display:inline-block;padding:11px 16px;border-radius:12px;font-weight:700;border:0;cursor:pointer;font-size:14px;margin:4px 6px 4px 0}
+.btn-t{background:var(--teal);color:#fff}.btn-o{border:1.5px solid var(--navy);color:var(--navy);background:#fff}.btn-r{background:var(--crit);color:#fff}
+.s{color:var(--mut);font-size:13px}
+#count{font-size:44px;font-weight:800;color:var(--navy);text-align:center}
+#alertBox{display:none;border:2px solid var(--crit)}
+canvas{width:100%;height:140px}
+ul{padding-left:18px;margin:6px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Guardian Angel <span class="s">— local prototype (1 page, no auth, no DB)</span></h1>
+<p><span id="monBadge" class="badge">● Monitoring ON</span> <span class="s" id="lastActive"></span></p>
+
+<div class="card" id="alertBox">
+<h2 style="color:#DC2626">⚠ Possible seizure — are you okay?</h2>
+<div id="count">12</div>
+<p class="s" style="text-align:center">Alerting caregiver if not cancelled (simulated).</p>
+<button class="btn btn-t" onclick="cancelAlert()">I'm Okay — Cancel</button>
+</div>
+
+<div class="card">
+<h2>Detection control</h2>
+<div class="row">
+<button class="btn btn-o" onclick="toggleMon()">Toggle monitoring</button>
+<button class="btn btn-r" onclick="simulate()">Simulate seizure</button>
+<button class="btn btn-o" onclick="ack()">Acknowledge (caregiver)</button>
+</div>
+<p class="s">Simulate = runs the real detection-to-countdown flow locally. Cancel stops escalation.</p>
+</div>
+
+<div class="card">
+<h2>Seizure frequency (this session + seed)</h2>
+<canvas id="chart" width="640" height="140"></canvas>
+<p class="s" id="insight"></p>
+</div>
+
+<div class="card">
+<h2>Event log (auto, in-memory)</h2>
+<ul id="log"></ul>
+</div>
+
+<div class="card">
+<h2>Medication</h2>
+<p class="s">Carbamazepine 200mg — 8pm <span id="medState"></span></p>
+<button class="btn btn-t" onclick="meds()">Mark taken</button>
+</div>
+</div>
+
+<script>
+let state={monitoring:true,events:[],medsTaken:false,alerting:false,timer:null,left:12};
+async function refresh(){
+  try{
+    const r=await fetch('/api/status'); const s=await r.json();
+    state.monitoring=s.monitoring; state.events=s.events||[]; state.medsTaken=!!s.medsTaken;
+    document.getElementById('monBadge').textContent=s.monitoring?'● Monitoring ON':'○ Monitoring OFF';
+    document.getElementById('monBadge').className='badge'+(s.monitoring?'':' off');
+    document.getElementById('lastActive').textContent='last active '+s.lastActive;
+    document.getElementById('medState').textContent=s.medsTaken?'✓ taken':'— pending';
+    renderLog(); drawChart();
+  }catch(e){}
+}
+function renderLog(){
+  const ul=document.getElementById('log'); ul.innerHTML='';
+  [...state.events].reverse().slice(0,10).forEach(e=>{
+    const li=document.createElement('li'); li.textContent=`${e.time} — ${e.label}`; ul.appendChild(li);
+  });
+  if(!state.events.length){const li=document.createElement('li');li.textContent='No events yet — press Simulate seizure.';ul.appendChild(li);}
+}
+function drawChart(){
+  const c=document.getElementById('chart'),x=c.getContext('2d');x.clearRect(0,0,640,140);
+  const seed=[2,3,1,4,2,5,3,2,1,3,2,4], n=state.events.filter(e=>e.kind==='seizure').length;
+  const data=[...seed]; data[data.length-1]+=n;
+  const max=Math.max(...data,1), bw=640/12;
+  data.forEach((v,i)=>{const h=v/max*100;x.fillStyle=i===5?'#2563EB':'#0E9F8A';x.fillRect(i*bw+8,130-h,bw-16,h);});
+  document.getElementById('insight').textContent=`Session seizures: ${n}. Total shown (12 wks incl. seed): ${data.reduce((a,b)=>a+b,0)}.`;
+}
+async function post(p,b){await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})});await refresh();}
+async function toggleMon(){await post('/api/monitoring',{on:!state.monitoring});}
+async function simulate(){
+  if(!state.monitoring){alert('Monitoring is OFF — toggle it on first.');return;}
+  await post('/api/event',{kind:'seizure',label:'Simulated seizure detected'});
+  startCountdown();
+}
+function startCountdown(){
+  state.alerting=true;state.left=12;
+  document.getElementById('alertBox').style.display='block';
+  clearInterval(state.timer);
+  state.timer=setInterval(()=>{
+    state.left--;
+    document.getElementById('count').textContent=state.left;
+    if(state.left<=0){clearInterval(state.timer);escalate();}
+  },1000);
+}
+async function cancelAlert(){
+  clearInterval(state.timer);state.alerting=false;
+  document.getElementById('alertBox').style.display='none';
+  await post('/api/event',{kind:'cancelled',label:'Patient cancelled (I\'m okay)'});
+}
+async function escalate(){
+  state.alerting=false;document.getElementById('alertBox').style.display='none';
+  await post('/api/event',{kind:'escalated',label:'No cancel — escalated to caregiver (push+SMS+email, simulated)'});
+  alert('Escalated to caregiver (simulated: push + SMS + email).');
+}
+async function ack(){await post('/api/event',{kind:'ack',label:'Caregiver acknowledged'});}
+async function meds(){await post('/api/meds',{taken:true});}
+setInterval(refresh,5000); refresh();
+</script>
+</body>
+</html>
