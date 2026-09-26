@@ -128,5 +128,16 @@ This note may be revised — keep rationale when changing.
 
 ---
 
+## Appendix B — Design Review Note v2 (26 Sept 2026, vs design-preview.html)
+
+Reviewed `design-preview.html` v2 (4 phones: Onboarding, Patient Home + chart, Countdown, Caregiver Alert) against PRD §5:
+
+- **Accepted:** clinical light theme #F2F7F6 + navy #0B2A3A + teal #0E9F8A, Inter 15px/20–28px, red reserved for alerts; fl_chart for trends (offline, Drift-friendly).
+- **Match:** Onboarding → §5.8 (no calibration, how-it-works, offline, NDPR, patient+caregiver equals). Patient Home → §5.9 (12-week frequency chart + peak highlight + insight, adherence streak). Countdown 12s + I'm-Okay → §5.2 steps 1/6/7 (cancel, 3-channel note, GPS + fallback address). Caregiver Alert → §5.2 step 8 (first-aid steps, Acknowledge/Call, location).
+- **Gaps in v2 preview (kept in scope, to re-add in v3):** §5.2 escalation chain + emergency-numbers fallback + response tracking detail; §5.3 monitoring-stopped alert; §5.4 auto-log view; §5.5 meds schedule screen (only streak shown); §5.6 caregiver empty/invite + QR; §5.7 voice check-in number. v1 preview had these — do not drop.
+- **Decision:** v2 theme + charts locked; v3 must restore missing screens above with same theme before Flutter build.
+
+---
+
 *This PRD reflects decisions made through direct product discussion with the founding team and should be treated as a living document, updated as the build progresses.*
 
