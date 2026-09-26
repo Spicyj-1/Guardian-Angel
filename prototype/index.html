@@ -50,8 +50,9 @@ ul{padding-left:18px;margin:6px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align
 </div>
 
 <div class="card">
-<h2>Event log (auto, in-memory)</h2>
-<ul id="log"></ul>
+<h2>Events <span class="s" id="eventSummary"></span></h2>
+<button class="btn btn-o" onclick="toggleHistory()">🕘 History log</button>
+<div id="historyBox" style="display:none"><ul id="log"></ul></div>
 </div>
 
 <div class="card">
@@ -74,12 +75,18 @@ async function refresh(){
     renderLog(); drawChart();
   }catch(e){}
 }
+function toggleHistory(){
+  const b=document.getElementById('historyBox');
+  b.style.display=b.style.display==='none'?'block':'none';
+}
 function renderLog(){
   const ul=document.getElementById('log'); ul.innerHTML='';
-  [...state.events].reverse().slice(0,10).forEach(e=>{
+  const ev=[...state.events].reverse();
+  ev.slice(0,10).forEach(e=>{
     const li=document.createElement('li'); li.textContent=`${e.time} — ${e.label}`; ul.appendChild(li);
   });
-  if(!state.events.length){const li=document.createElement('li');li.textContent='No events yet — press Simulate seizure.';ul.appendChild(li);}
+  if(!ev.length){const li=document.createElement('li');li.textContent='No events yet — press Simulate seizure.';ul.appendChild(li);}
+  document.getElementById('eventSummary').textContent=ev.length?`— last: ${ev[0].label} (${ev.length} total)`:'— none yet';
 }
 function drawChart(){
   const c=document.getElementById('chart'),x=c.getContext('2d');x.clearRect(0,0,640,140);

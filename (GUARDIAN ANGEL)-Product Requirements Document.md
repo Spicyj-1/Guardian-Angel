@@ -136,6 +136,7 @@ Reviewed `design-preview.html` v2 (4 phones: Onboarding, Patient Home + chart, C
 - **Match:** Onboarding → §5.8 (no calibration, how-it-works, offline, NDPR, patient+caregiver equals). Patient Home → §5.9 (12-week frequency chart + peak highlight + insight, adherence streak). Countdown 12s + I'm-Okay → §5.2 steps 1/6/7 (cancel, 3-channel note, GPS + fallback address). Caregiver Alert → §5.2 step 8 (first-aid steps, Acknowledge/Call, location).
 - **Gaps in v2 preview (kept in scope, to re-add in v3):** §5.2 escalation chain + emergency-numbers fallback + response tracking detail; §5.3 monitoring-stopped alert; §5.4 auto-log view; §5.5 meds schedule screen (only streak shown); §5.6 caregiver empty/invite + QR; §5.7 voice check-in number. v1 preview had these — do not drop.
 - **Decision:** v2 theme + charts locked; v3 must restore missing screens above with same theme before Flutter build.
+- **UX change (founder request):** full event log hidden behind History 🕘 icon — main screen shows only last-event summary + count. Applied to prototype; carries to Flutter History tab.
 
 ---
 
