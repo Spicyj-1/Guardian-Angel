@@ -122,6 +122,7 @@ Decided with founder, recorded to allow future review/change:
 - **File storage: local filesystem** via `path_provider` (app documents directory). Models, logs, exports stay on-device for now.
 - **App + database run locally for now — no backend / no cloud DB.**
 - **Model: user-provided TFLite 0.89MB.** Use existing conversion unless Phase 1 validation fails. Confirm input shape, window, threshold in Phase 1.
+- **Design v2 (26 Sept 2026): clinical light theme + fl_chart.** Teal #0E9F8A + navy #0B2A3A on #F2F7F6, Inter, red reserved for alerts. Charts via fl_chart (offline, lightweight, Drift-friendly). Rejected: heavy chart SDKs.
 
 This note may be revised — keep rationale when changing.
 

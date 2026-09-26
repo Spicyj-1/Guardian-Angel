@@ -53,7 +53,8 @@ Output: cancel countdown → escalate → fallback chain
 Ref: PRD 5.4, 5.5, 5.9
 Output: auto-log + dashboard + reminders
 - Seizure table: time/duration/severity, no manual entry
-- Dashboard: recent activity, frequency trends, adherence streaks + insights
+- Dashboard: recent activity, frequency trends (fl_chart bar — chosen, offline/lightweight/Drift-friendly), adherence streaks + insights
+- Theme: clinical light #F2F7F6 + navy #0B2A3A + teal #0E9F8A, Inter, red reserved for alerts
 - Local notifications for meds, streak logic
 - Acceptance: offline seizure → log + charts; med reminder fires offline
 
