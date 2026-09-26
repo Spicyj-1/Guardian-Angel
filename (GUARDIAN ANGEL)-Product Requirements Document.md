@@ -112,5 +112,20 @@ Displays, together on one view:
 
 ---
 
+## Appendix A — Implementation Decisions Note (26 Sept 2026)
+
+Decided with founder, recorded to allow future review/change:
+
+- **Framework: Flutter + Dart (locked).** Why: single codebase for Android/iOS, good background-service + offline support, matches offline-first goal. Rejected: React Native.
+- **Database: Drift over SQLite (chosen).** Why: type-safe Dart, reactive `watch()` for dashboard trends/streaks, managed migrations. Rejected: sqflite (raw SQL, manual migrations, no reactivity). Runs locally on-device for now.
+- **Authentication: local-only.** Via `local_auth` (PIN/biometric) + `flutter_secure_storage`. Why: offline-first, no server dependency, NDPR-friendly. No cloud auth for now.
+- **File storage: local filesystem** via `path_provider` (app documents directory). Models, logs, exports stay on-device for now.
+- **App + database run locally for now — no backend / no cloud DB.**
+- **Model: user-provided TFLite 0.89MB.** Use existing conversion unless Phase 1 validation fails. Confirm input shape, window, threshold in Phase 1.
+
+This note may be revised — keep rationale when changing.
+
+---
+
 *This PRD reflects decisions made through direct product discussion with the founding team and should be treated as a living document, updated as the build progresses.*
 
