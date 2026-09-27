@@ -10,6 +10,7 @@ GoogleService-Info.plist
 *credentials*.json
 *secret*.json
 *token*.json
+tools/
 
 # Flutter / Dart
 .dart_tool/

@@ -64,16 +64,22 @@ ul{padding-left:18px;margin:6px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align
 
 <script>
 let state={monitoring:true,events:[],medsTaken:false,alerting:false,timer:null,left:12};
+let serverMode=true;
+function now(){return new Date().toTimeString().slice(0,8);}
 async function refresh(){
   try{
     const r=await fetch('/api/status'); const s=await r.json();
+    serverMode=true;
     state.monitoring=s.monitoring; state.events=s.events||[]; state.medsTaken=!!s.medsTaken;
-    document.getElementById('monBadge').textContent=s.monitoring?'● Monitoring ON':'○ Monitoring OFF';
-    document.getElementById('monBadge').className='badge'+(s.monitoring?'':' off');
-    document.getElementById('lastActive').textContent='last active '+s.lastActive;
-    document.getElementById('medState').textContent=s.medsTaken?'✓ taken':'— pending';
+    paintStatus(s.lastActive);
+  }catch(e){ serverMode=false; paintStatus('local demo mode'); }
+}
+function paintStatus(last){
+    document.getElementById('monBadge').textContent=state.monitoring?'● Monitoring ON':'○ Monitoring OFF';
+    document.getElementById('monBadge').className='badge'+(state.monitoring?'':' off');
+    document.getElementById('lastActive').textContent='last active '+last;
+    document.getElementById('medState').textContent=state.medsTaken?'✓ taken':'— pending';
     renderLog(); drawChart();
-  }catch(e){}
 }
 function toggleHistory(){
   const b=document.getElementById('historyBox');
@@ -96,7 +102,19 @@ function drawChart(){
   data.forEach((v,i)=>{const h=v/max*100;x.fillStyle=i===5?'#2563EB':'#0E9F8A';x.fillRect(i*bw+8,130-h,bw-16,h);});
   document.getElementById('insight').textContent=`Session seizures: ${n}. Total shown (12 wks incl. seed): ${data.reduce((a,b)=>a+b,0)}.`;
 }
-async function post(p,b){await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})});await refresh();}
+async function post(p,b){
+  if(!serverMode){ localEvent(p,b); paintStatus('local demo mode'); return; }
+  try{ await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}); }
+  catch(e){ serverMode=false; localEvent(p,b); }
+  await refresh();
+}
+function localEvent(p,b){
+  b=b||{};
+  if(p==='/api/monitoring'&&'on' in b){ state.monitoring=!!b.on; addLocal('monitoring','Monitoring '+(state.monitoring?'ON':'OFF')); }
+  else if(p==='/api/event'){ addLocal(b.kind||'note',b.label||'Event'); }
+  else if(p==='/api/meds'){ state.medsTaken=true; addLocal('meds','Medication marked taken'); }
+}
+function addLocal(kind,label){ state.events.push({time:now(),kind:label?kind:'note',label}); }
 async function toggleMon(){await post('/api/monitoring',{on:!state.monitoring});}
 async function simulate(){
   if(!state.monitoring){alert('Monitoring is OFF — toggle it on first.');return;}
