@@ -5,6 +5,7 @@
 $port = 8081
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $index = Join-Path $root 'index.html'
+$design = Join-Path (Split-Path -Parent $root) 'design-preview.html'
 
 $state = @{
   monitoring = $true
@@ -50,6 +51,8 @@ while ($listener.IsListening) {
     $path = $ctx.Request.Url.AbsolutePath
     if ($method -eq 'GET' -and ($path -eq '/' -or $path -eq '/index.html')) {
       Send-Html $ctx $index
+    } elseif ($method -eq 'GET' -and $path -eq '/design') {
+      Send-Html $ctx $design
     } elseif ($method -eq 'GET' -and $path -eq '/api/status') {
       Send-Json $ctx @{
         monitoring = $state.monitoring
