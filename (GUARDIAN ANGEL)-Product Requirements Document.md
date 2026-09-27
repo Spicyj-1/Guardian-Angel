@@ -121,6 +121,7 @@ Decided with founder, recorded to allow future review/change:
 - **Authentication: local-only.** Via `local_auth` (PIN/biometric) + `flutter_secure_storage`. Why: offline-first, no server dependency, NDPR-friendly. No cloud auth for now.
 - **File storage: local filesystem** via `path_provider` (app documents directory). Models, logs, exports stay on-device for now.
 - **App + database run locally for now — no backend / no cloud DB.**
+- **Safety positioning (founder, 27 Sept 2026): detection aid, NOT a medical device or replacement for supervision. Goal: help users feel safe via detection (not prediction). Disclaimer ships in-app + store listing before pilot.**
 - **Model (confirmed 27 Sept 2026):** `seizure_detection_model.tflite` 286.6KB (from 915.3KB H5). Input (250×6 float32), output (1). Needs SELECT_TF_OPS. Binary pending drop into `model/`.
 - **Design v2 (26 Sept 2026): clinical light theme + fl_chart.** Teal #0E9F8A + navy #0B2A3A on #F2F7F6, Inter, red reserved for alerts. Charts via fl_chart (offline, lightweight, Drift-friendly). Rejected: heavy chart SDKs.
 
