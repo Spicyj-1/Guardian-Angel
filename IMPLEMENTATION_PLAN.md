@@ -16,12 +16,11 @@ Output: Flutter monorepo scaffold + CI + docs in git
 - Add lint, unit test runner
 - Acceptance: blank app launches from clean clone (`flutter run`)
 
-## Phase 1 — Model packaging (user TFLite 0.89MB)
+## Phase 1 — Model packaging (confirmed 27 Sept 2026)
 Ref: PRD 5.1, 6 battery/resource, 8 risks. Baseline 47.7% sens / 22.2% prec.
-Output: validated `model/guardianangel.tflite` (user-provided 0.89MB) + validation report
-- Use existing user-converted TFLite (0.89MB) — no re-export unless validation fails. Confirm input shape, sampling rate, window size, threshold config
-- Reproduce metrics on SeizeIT2 (20 patients, 23,333 windows, accel/gyro only — not EEG)
-- Acceptance: on-device inference <100ms/window via `tflite_flutter`, documented FP rate
+Output: validated `model/seizure_detection_model.tflite` (286.6KB) + validation report
+- Specs confirmed from Colab: input `signal_input` (250×6 float32, 250 timesteps × accel/gyro XYZ), output (1) probability. H5 915.3KB → TFLite 286.6KB. Converter needs SELECT_TF_OPS (LSTM) — mobile build must include select-ops.
+- Awaiting binary drop into `model/` — then verify <100ms/window via `tflite_flutter`, repro SeizeIT2 metrics (20 patients, 23,333 windows, accel/gyro only)
 
 ## Phase 2 — Offline-first shell + onboarding (STORAGE: Drift)
 Ref: PRD 5.8, 6 offline-first, 6 data protection
