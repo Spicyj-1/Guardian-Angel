@@ -20,6 +20,7 @@ Output: Flutter monorepo scaffold + CI + docs in git
 Ref: PRD 5.1, 6 battery/resource, 8 risks. Baseline 47.7% sens / 22.2% prec.
 Output: validated `model/seizure_detection_model.tflite` (286.6KB) + validation report
 - Specs confirmed from Colab: input `signal_input` (250×6 float32, 250 timesteps × accel/gyro XYZ), output (1) probability. H5 915.3KB → TFLite 286.6KB. Converter needs SELECT_TF_OPS (LSTM) — mobile build must include select-ops.
+- Traceability: source `promivine-prog/.../guardian_angel/models/seizure_detection_model.h5` (blob `06d74fe`, 937,280 bytes) → `model/seizure_detection_model.tflite` (293,480 bytes). On retrain, reconvert + update this line.
 - Awaiting binary drop into `model/` — then verify <100ms/window via `tflite_flutter`, repro SeizeIT2 metrics (20 patients, 23,333 windows, accel/gyro only)
 
 ## Phase 2 — Offline-first shell + onboarding (STORAGE: Drift)
