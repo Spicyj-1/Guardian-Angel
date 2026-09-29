@@ -122,7 +122,7 @@ Decided with founder, recorded to allow future review/change:
 - **File storage: local filesystem** via `path_provider` (app documents directory). Models, logs, exports stay on-device for now.
 - **App + database run locally for now — no backend / no cloud DB.**
 - **Safety positioning (founder, 27 Sept 2026): detection aid, NOT a medical device or replacement for supervision. Goal: help users feel safe via detection (not prediction). Disclaimer ships in-app + store listing before pilot.**
-- **Model (confirmed 27 Sept 2026):** `seizure_detection_model.tflite` 286.6KB (from 915.3KB H5). Input (250×6 float32), output (1). Needs SELECT_TF_OPS. Binary pending drop into `model/`.
+- **Model (confirmed 27 Sept 2026):** `seizure_detection_model.tflite` 286.6KB (from 915.3KB H5). Input (250×6 float32), output (1). Needs SELECT_TF_OPS. Binary in `model/` (`28fb95b`).
 - **Design v2 (26 Sept 2026): clinical light theme + fl_chart.** Teal #0E9F8A + navy #0B2A3A on #F2F7F6, Inter, red reserved for alerts. Charts via fl_chart (offline, lightweight, Drift-friendly). Rejected: heavy chart SDKs.
 
 This note may be revised — keep rationale when changing.
@@ -138,6 +138,18 @@ Reviewed `design-preview.html` v2 (4 phones: Onboarding, Patient Home + chart, C
 - **Gaps in v2 preview (kept in scope, to re-add in v3):** §5.2 escalation chain + emergency-numbers fallback + response tracking detail; §5.3 monitoring-stopped alert; §5.4 auto-log view; §5.5 meds schedule screen (only streak shown); §5.6 caregiver empty/invite + QR; §5.7 voice check-in number. v1 preview had these — do not drop.
 - **Decision:** v2 theme + charts locked; v3 must restore missing screens above with same theme before Flutter build.
 - **UX change (founder request):** full event log hidden behind History 🕘 icon — main screen shows only last-event summary + count. Applied to prototype; carries to Flutter History tab.
+
+---
+
+## Appendix C — AI Ethics Principles (founder directive, 29 Sept 2026)
+
+Every build step must satisfy these five. Binding on design, model, and code:
+
+1. **Fairness** — must work across patients, body types, and phone placements, not just the training majority. Gate: per-patient (leave-one-patient-out) evaluation before pilot; no ship on global average alone.
+2. **Accountability** — every model artifact traceable (H5 source → TFLite → threshold, all pinned in plan). Decisions and metrics recorded, never silent.
+3. **Transparency** — disclose 47.7% sensitivity / 22.2% precision baseline, detection-not-prediction limit, and false-alarm rate in-app and in store listing. No overstated claims.
+4. **Privacy** — offline-first, local-only storage, NDPR compliance (consent, residency, breach flow, deletion). No health data leaves the device without explicit consent; no secrets in git.
+5. **Safety** — recall-first threshold (missed seizure worse than false alarm), 12s cancel/countdown against alarm fatigue, escalation chain, monitoring-lapse alerts. Detection aid, never a replacement for supervision.
 
 ---
 
