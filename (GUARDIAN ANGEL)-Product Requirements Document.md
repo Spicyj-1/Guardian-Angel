@@ -153,5 +153,12 @@ Every build step must satisfy these five. Binding on design, model, and code:
 
 ---
 
+## Appendix D — External Services Plan (04 Oct 2026)
+
+- **Phase 4 runtime transactional services:** Resend (email alerts) + Twilio (emergency SMS; Africa's Talking as regional alternative) complement the hosted prototype. FCM for push. No runtime service wired yet — prototype is local-only by design.
+- **Webhook event tracking:** pair each service with its callbacks — SMS delivery receipts, email delivery/bounce webhooks, voice call-status callbacks — feeding the ack/response tracker so every alert reads sent → delivered → acknowledged. Secrets/keys stay in local `.env`, never committed.
+
+---
+
 *This PRD reflects decisions made through direct product discussion with the founding team and should be treated as a living document, updated as the build progresses.*
 

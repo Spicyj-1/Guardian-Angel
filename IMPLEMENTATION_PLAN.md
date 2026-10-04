@@ -44,7 +44,8 @@ Output: always-on accel+gyro service with on-device inference
 Ref: PRD 5.2
 Output: cancel countdown → escalate → fallback chain
 - Patient: "Alerting in 12s" + I'm-okay cancel
-- Multi-channel simultaneous: push (FCM) + SMS + email
+- Multi-channel simultaneous: push (FCM) + SMS (Twilio / Africa's Talking) + email (Resend) — transactional providers, Phase 4 runtime complement to hosted prototype
+- Delivery webhooks: SMS delivery receipts + email delivery/bounce webhooks + call-status callbacks feed the ack/response tracker, so every alert shows sent → delivered → acknowledged
 - Unlimited caregiver list, retry → next escalation; exhausted → emergency/hospital numbers (port from Streamlit)
 - GPS live + fallback preset address; first-aid screen + ack tracking
 - Acceptance: simulated seizure triggers full chain in <30s, logged
