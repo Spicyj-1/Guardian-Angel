@@ -160,5 +160,16 @@ Every build step must satisfy these five. Binding on design, model, and code:
 
 ---
 
+## Appendix E — Digital-Twin Research Framing (04 Oct 2026)
+
+One-sentence summary: "Guardian Angel currently detects motor seizures and alerts caregivers — a working prototype. This research develops a patient-state digital-twin layer that will track how each patient's patterns evolve over time, turning the system from static detection into a longitudinally aware patient model."
+
+- **Have (15, built):** detection model, SeizeIT2 training data, metrics, Streamlit app + user/caregiver/admin dashboards, welfare protocol (0s prompt → 30s caregiver → 60s emergency + GPS), Twilio SMS, Nominatim + Nigerian clinic fallback, SHAP explainability, Firebase event logging, voice check-in, offline inference path, IP secured.
+- **To build (10, twin layer):** patient-state virtual model, continuous sync, longitudinal tracking, risk trajectory, response modelling, trend detection, adaptive alerting (investigate), live-state dashboard bindings, longitudinal validation, prediction foundation (beyond study). Backlog mapped in plan (T1–T10).
+- **Three-tense framing:** Present = real-time detection + alerts + dashboards. This research = patient-state twin modelling evolution over time. Beyond = prediction + wearables.
+- **Metric conflict (open):** 63.2% sens / 79% spec / AUC 0.78 (125 patients, 883 focal seizures) vs PRD 47.7% / 22.2% (20 patients, 23,333 windows). Resolution pending evaluation audit — PRD numbers stand until corrected.
+
+---
+
 *This PRD reflects decisions made through direct product discussion with the founding team and should be treated as a living document, updated as the build progresses.*
 

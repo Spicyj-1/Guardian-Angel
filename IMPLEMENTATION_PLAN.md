@@ -75,6 +75,16 @@ Output: test + compliance + pilot build
 - Field test 5–10 patient-caregiver pairs
 - Acceptance: signed pilot APK/IPA + known-issues log
 
+## Twin-layer backlog (research extension, post-v1)
+Maps the 10 digital-twin components (PRD Appendix E). Not v1 scope:
+- T1 patient-state virtual model + T2 continuous sync → extends Phase 2/3 (Drift state object fed by sensor + caregiver events)
+- T3 longitudinal tracking + T4 risk trajectory + T6 trend detection → extends Phase 5 (rolling scores, clustering, deterioration flags)
+- T5 caregiver-response modelling → extends Phase 6 (latency, escalation, compliance trends)
+- T7 adaptive alerting (personalized thresholds from longitudinal data) → investigate, ethics-gated (fairness, safety)
+- T8 dashboard bindings to live state → all dashboards read the virtual state, not last event
+- T9 longitudinal validation → extends Phase 7 (clinically meaningful trend assessment)
+- T10 prediction foundation → beyond this study (needs wearable EEG/ECG)
+
 ## Out of scope (v1)
 - Mandatory per-user calibration
 - Wearable/EEG-ECG integration (prediction needs hardware, not model)
