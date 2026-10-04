@@ -168,6 +168,7 @@ One-sentence summary: "Guardian Angel currently detects motor seizures and alert
 - **To build (10, twin layer):** patient-state virtual model, continuous sync, longitudinal tracking, risk trajectory, response modelling, trend detection, adaptive alerting (investigate), live-state dashboard bindings, longitudinal validation, prediction foundation (beyond study). Backlog mapped in plan (T1–T10).
 - **Three-tense framing:** Present = real-time detection + alerts + dashboards. This research = patient-state twin modelling evolution over time. Beyond = prediction + wearables.
 - **Metric conflict (open):** 63.2% sens / 79% spec / AUC 0.78 (125 patients, 883 focal seizures) vs PRD 47.7% / 22.2% (20 patients, 23,333 windows). Resolution pending evaluation audit — PRD numbers stand until corrected.
+- **Detection scope (founder, 04 Oct 2026):** training data mixes motor-manifesting and non-motor seizures; the phone (accel/gyro) can only detect seizures with a movement signature. Metrics must be stratified by seizure type; app copy + disclaimer must state non-motor events will not trigger alerts.
 
 ---
 
