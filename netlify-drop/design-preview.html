@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guardian Angel — Design Preview v2 (Healthcare theme + Charts)</title>
+<style>
+:root{--bg:#F2F7F6;--navy:#0B2A3A;--teal:#0E9F8A;--teal-d:#0B7E6E;--blue:#2563EB;--card:#FFFFFF;--txt:#0F2433;--mut:#5B7288;--line:#E2EDEB;--warn:#F59E0B;--crit:#DC2626}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;font-size:15px;line-height:1.45}
+header{padding:28px 24px 12px;max-width:1220px;margin:auto}
+header h1{margin:0;color:var(--navy);font-size:28px;letter-spacing:-.02em}
+header p{color:var(--mut);margin:6px 0}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:#DFF7F1;color:var(--teal-d);border:1px solid #BDE9DF}
+.grid{max-width:1220px;margin:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;padding:12px 24px 16px}
+.phone{background:#0B2A3A;border-radius:38px;padding:12px}
+.screen{background:var(--card);border-radius:28px;overflow:hidden;min-height:600px;display:flex;flex-direction:column}
+.top{padding:12px 16px;border-bottom:1px solid var(--line);font-size:12px;color:var(--mut);display:flex;justify-content:space-between;align-items:center}
+.body{padding:16px;flex:1}
+h2{font-size:20px;margin:4px 0;color:var(--navy)}h3{font-size:15px;margin:10px 0 6px;color:var(--navy)}
+p.s{font-size:13px;color:var(--mut);margin:4px 0}
+.card{border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:#fff}
+.btn{display:block;text-align:center;padding:12px;border-radius:12px;margin:8px 0;font-weight:700;text-decoration:none;font-size:14px}
+.btn-t{background:var(--teal);color:#fff}.btn-t:hover{background:var(--teal-d)}.btn-o{border:1.5px solid var(--navy);color:var(--navy)}.btn-r{background:var(--crit);color:#fff}
+.count{font-size:46px;font-weight:800;text-align:center;color:var(--navy);margin:6px 0}
+.bar{height:8px;background:#E6F0EE;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--teal)}
+svg.chart{width:100%;height:120px;display:block}
+.ch-legend{font-size:11px;color:var(--mut);display:flex;gap:10px;margin-top:4px}
+.dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:4px}
+.note{max-width:1220px;margin:0 auto 32px;padding:0 24px;color:var(--mut);font-size:13px}
+.rec{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;max-width:1220px;margin:0 24px 20px}
+</style>
+</head>
+<body>
+<header>
+<h1>Guardian Angel — Design Preview v2</h1>
+<p>Healthcare typography + clinical palette + chart trends • Flutter • Drift local-only • Offline-first</p>
+<p><span class="badge">● Monitoring ON — on-device</span></p>
+</header>
+
+<div class="rec">
+<b>Recommendation:</b> use <b>teal (#0E9F8A) + navy (#0B2A3A) on soft clinical background (#F2F7F6)</b> — teal = care/trust/calm, navy = clinical authority, ample whitespace, 15–16px Inter for readability in stress. Reserve <b style="color:#DC2626">red only for active alerts</b>, amber for warnings. For Flutter trends use <b>fl_chart</b> (offline, lightweight, no network, works with Drift streams) — bar for seizure frequency, line for adherence. Avoid Syncfusion (heavy/licensing) for v1.
+</div>
+
+<div class="grid">
+<div class="phone"><div class="screen"><div class="top"><span>9:41 • offline ✓</span><span>Onboarding</span></div><div class="body">
+<h2>Care that stays with you.</h2><p class="s">Offline seizure companion. No calibration, no wearable needed.</p>
+<div class="card">📱 Phone sensors → on-device AI<br>🔒 Private by design (NDPR)<br>🤝 Patient + Caregiver as equals</div>
+<a class="btn btn-t">Get Started</a><a class="btn btn-o">How it works</a>
+</div></div></div>
+
+<div class="phone"><div class="screen"><div class="top"><span>Patient Home</span><span class="badge">Protected</span></div><div class="body">
+<h2>Hi, Divine 👋</h2><p class="s">Last event: 2d ago • 42s • moderate</p>
+<div class="card"><h3>Seizure frequency — last 12 weeks (chart)</h3>
+<svg class="chart" viewBox="0 0 260 120"><line x1="28" y1="8" x2="28" y2="100" stroke="#E2EDEB"/><line x1="28" y1="100" x2="255" y2="100" stroke="#E2EDEB"/>
+<rect x="38" y="72" width="14" height="28" rx="4" fill="#0E9F8A"/><rect x="58" y="60" width="14" height="40" rx="4" fill="#0E9F8A"/><rect x="78" y="80" width="14" height="20" rx="4" fill="#BDE9DF"/><rect x="98" y="52" width="14" height="48" rx="4" fill="#0E9F8A"/><rect x="118" y="66" width="14" height="34" rx="4" fill="#0E9F8A"/><rect x="138" y="40" width="14" height="60" rx="4" fill="#2563EB"/><rect x="158" y="70" width="14" height="30" rx="4" fill="#0E9F8A"/><rect x="178" y="58" width="14" height="42" rx="4" fill="#0E9F8A"/><rect x="198" y="76" width="14" height="24" rx="4" fill="#BDE9DF"/><rect x="218" y="64" width="14" height="36" rx="4" fill="#0E9F8A"/>
+<text x="38" y="112" font-size="8" fill="#5B7288">W1</text><text x="138" y="112" font-size="8" fill="#5B7288">W6 peak</text><text x="218" y="112" font-size="8" fill="#5B7288">W11</text></svg>
+<div class="ch-legend"><span><i class="dot" style="background:#0E9F8A"></i>weekly count</span><span><i class="dot" style="background:#2563EB"></i>peak week</span></div>
+<p class="s">Insight: evenings 2× more frequent. Consider med timing review.</p></div>
+<div class="card"><h3>Adherence — 6-day streak 🔥</h3><div class="bar"><i style="width:86%"></i></div><p class="s">Carbamazepine 8pm — due in 2h</p></div>
+</div></div></div>
+
+<div class="phone"><div class="screen"><div class="top"><span style="color:#DC2626;font-weight:800">⚠ Possible seizure</span><span>GPS ✓</span></div><div class="body">
+<h2 style="text-align:center">Are you okay?</h2><div class="count">12s</div>
+<p class="s" style="text-align:center">Alerting Mary if not cancelled.</p>
+<a class="btn btn-t">I'm Okay — Cancel</a>
+<div class="card"><small>Sending: 12 James St, Lagos (GPS) else home address. Push + SMS + email.</small></div>
+</div></div></div>
+
+<div class="phone"><div class="screen"><div class="top"><span style="color:#DC2626;font-weight:800">🚨 SEIZURE ALERT</span><span>now</span></div><div class="body">
+<h2>Luke needs help</h2><p class="s">2 min ago • 500m • Open map</p>
+<div class="card"><b>First-aid</b><br><small>1. Stay calm, time it<br>2. Clear space, cushion head<br>3. Nothing in mouth, don't restrain<br>4. Recovery position after</small></div>
+<a class="btn btn-t">Acknowledge</a><a class="btn btn-o">Call Luke</a>
+</div></div></div>
+</div>
+
+<p class="note">v2 changes: clinical light theme, Inter 15px / headings navy 20px semibold, teal primary, red reserved for alerts, SVG chart for trends (fl_chart in Flutter). Next: refine copy, add Hausa/Yoruba/Igbo, dark-mode clinical variant?</p>
+</body>
+</html>
