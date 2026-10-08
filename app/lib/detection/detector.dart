@@ -1,7 +1,7 @@
 // Guardian Angel — Phase 3: rolling 250x6 window + threshold gate (pure Dart).
 // Platform sensor/TFLite specifics stay behind `inference.dart` conditional import,
 // so web CI stays green and mobile gets real inference.
-import 'model/config.dart';
+import '../model/config.dart';
 import 'inference.dart';
 
 typedef SeizureCallback = void Function(double probability);
