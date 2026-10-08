@@ -1,0 +1,11 @@
+{
+  "name": "Guardian Angel",
+  "short_name": "Guardian Angel",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F2F7F6",
+  "theme_color": "#0E9F8A",
+  "description": "Offline-first seizure detection companion.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}
