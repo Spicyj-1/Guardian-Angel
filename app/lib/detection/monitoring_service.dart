@@ -24,12 +24,12 @@ class MonitoringService {
 
   Future<void> start() async {
     await detector.init();
-    _gyro = gyroscopeEventStream().listen((e) {
+    _gyro = gyroscopeEvents.listen((e) {
       _gx = e.x;
       _gy = e.y;
       _gz = e.z;
     });
-    _acc = accelerometerEventStream().listen((e) {
+    _acc = accelerometerEvents.listen((e) {
       _lastActive = DateTime.now();
       // Fire-and-forget: window/threshold logic lives in Detector.
       detector.pushSample([e.x, e.y, e.z, _gx, _gy, _gz]);
