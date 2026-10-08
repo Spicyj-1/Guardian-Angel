@@ -6,10 +6,7 @@ Interpreter? _interp;
 
 Future<bool> initInference(String assetPath) async {
   try {
-    _interp = await Interpreter.fromAsset(
-      assetPath,
-      options: InterpreterOptions()..useNnapi = false,
-    );
+    _interp = await Interpreter.fromAsset(assetPath);
     return true;
   } catch (_) {
     return false;
