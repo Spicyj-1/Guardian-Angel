@@ -1,0 +1,22 @@
+name: app-ci
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", ".github/workflows/app-ci.yml"]
+  pull_request:
+    paths: ["app/**"]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter build web --release --no-tree-shake-icons
