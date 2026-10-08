@@ -19,5 +19,5 @@ Future<double> runInference(List<List<double>> window) async {
   final input = [window];
   final output = List.filled(1, 0.0).reshape([1, 1]);
   interp.run(input, output);
-  return (output[0][0] as double).clamp(0.0, 1.0);
+  return (output[0][0] as num).clamp(0.0, 1.0).toDouble();
 }
