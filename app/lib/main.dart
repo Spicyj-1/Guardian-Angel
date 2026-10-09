@@ -2,6 +2,8 @@
 // Offline, local-only. Detection engine plugs into ModelConfig in Phase 3.
 import 'package:flutter/material.dart';
 import 'model/config.dart';
+import 'alert/engine.dart';
+import 'alert/first_aid.dart';
 
 void main() => runApp(const GuardianAngelApp());
 
@@ -34,11 +36,21 @@ class _HomeScreenState extends State<HomeScreen> {
   bool monitoring = true;
   final List<String> _events = []; // Drift-backed in full Phase 2; in-memory for shell.
   int _countdown = 0;
+  late final AlertEngine _alerts = AlertEngine(
+    caregivers: [Caregiver(name: 'Mary (demo)', contact: '+2348000000000')],
+    sender: LocalLogSender(),
+  );
+  String? _fallback;
+
+  void _log(String s) =>
+      _events.add('${DateTime.now().toIso8601String()} — $s');
 
   void _simulate() {
     if (!monitoring) return;
+    _alerts.start(probability: 0.9, locationNote: 'demo GPS');
     setState(() {
-      _events.add('${DateTime.now().toIso8601String()} — simulated detection');
+      _log('simulated detection');
+      _fallback = null;
       _countdown = ModelConfig.cancelCountdownSeconds;
     });
     _tick();
@@ -50,16 +62,32 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _countdown--);
       if (_countdown == 0) {
-        setState(() => _events.add(
-            '${DateTime.now().toIso8601String()} — escalated to caregiver (simulated)'));
+        final outcome = await _alerts.escalateDue(locationNote: 'demo GPS');
+        if (!mounted) return;
+        setState(() {
+          _log(outcome == AlertOutcome.fallbackShown
+              ? 'caregivers exhausted → fallback'
+              : 'escalated to caregiver (simulated)');
+          if (outcome == AlertOutcome.fallbackShown) {
+            _fallback = _alerts.fallbackText(country: 'Nigeria');
+          }
+        });
       }
     }
   }
 
-  void _cancel() => setState(() {
-        _countdown = 0;
-        _events.add('${DateTime.now().toIso8601String()} — patient cancelled (okay)');
-      });
+  void _cancel() {
+    _alerts.cancel();
+    setState(() {
+      _countdown = 0;
+      _log('patient cancelled (okay)');
+    });
+  }
+
+  void _ack() {
+    _alerts.acknowledge('Mary (demo)');
+    setState(() => _log('caregiver acknowledged'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +156,29 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Simulate seizure',
                   style: TextStyle(color: Colors.white))),
         ]),
+        Row(children: [
+          ElevatedButton(onPressed: _ack, child: const Text('Acknowledge')),
+        ]),
+        if (_fallback != null)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(_fallback!),
+            ),
+          ),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('First aid (with every alert)',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                for (final s in firstAidSteps) Text('• $s'),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
         const Text('Trends + adherence arrive with fl_chart (Phase 5).'),
       ],
