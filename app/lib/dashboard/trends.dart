@@ -1,5 +1,5 @@
 // Guardian Angel — Phase 5: trends + adherence math (pure Dart, tested via CI).
-import 'repository.dart';
+import '../data/repository.dart';
 
 /// Weekly seizure counts for the last [weeks] weeks, oldest → newest.
 /// Session events land in the final bucket; seed shapes the history curve.
