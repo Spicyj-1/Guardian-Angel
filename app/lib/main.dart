@@ -1,9 +1,12 @@
 // Guardian Angel — Phase 2 shell: Patient Home + History tab + 12s countdown.
 // Offline, local-only. Detection engine plugs into ModelConfig in Phase 3.
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'model/config.dart';
 import 'alert/engine.dart';
 import 'alert/first_aid.dart';
+import 'data/repository.dart';
+import 'dashboard/trends.dart';
 
 void main() => runApp(const GuardianAngelApp());
 
@@ -40,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     caregivers: [Caregiver(name: 'Mary (demo)', contact: '+2348000000000')],
     sender: LocalLogSender(),
   );
+  final SeizureLog _seizureLog = InMemorySeizureLog();
+  final MedsStore _meds = InMemoryMedsStore();
   String? _fallback;
 
   void _log(String s) =>
@@ -48,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _simulate() {
     if (!monitoring) return;
     _alerts.start(probability: 0.9, locationNote: 'demo GPS');
+    _seizureLog.add(SeizureEvent(
+        at: DateTime.now(), durationSeconds: 42, severity: 'moderate'));
     setState(() {
       _log('simulated detection');
       _fallback = null;
@@ -180,8 +187,83 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text('Trends + adherence arrive with fl_chart (Phase 5).'),
+        _trendsCard(navy),
+        _medsCard(),
+        const SizedBox(height: 8),
+        const Text('Local notifications for meds arrive with the mobile build (Phase 5).'),
       ],
+    );
+  }
+
+  Widget _trendsCard(Color navy) {
+    final counts = weeklyCounts(_seizureLog.recent(limit: 200));
+    final streak = adherenceStreak(_meds);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Seizure frequency — 12 weeks',
+                style: TextStyle(color: navy, fontWeight: FontWeight.bold)),
+            SizedBox(
+              height: 140,
+              child: BarChart(
+                BarChartData(
+                  barGroups: [
+                    for (int i = 0; i < counts.length; i++)
+                      BarChartGroupData(x: i, barRods: [
+                        BarChartRodData(
+                          toY: counts[i].toDouble(),
+                          color: i == 5
+                              ? const Color(AppTheme.blue)
+                              : const Color(AppTheme.teal),
+                          width: 10,
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ]),
+                  ],
+                  titlesData: const FlTitlesData(show: false),
+                  borderData: FlBorderData(show: false),
+                  gridData: const FlGridData(show: false),
+                ),
+              ),
+            ),
+            Text(trendInsight(counts),
+                style: const TextStyle(color: Colors.black54)),
+            Text('Adherence streak: $streak day(s) 🔥',
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _medsCard() {
+    final doses = _meds.today();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Medication — today',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            for (final d in doses)
+              Row(children: [
+                Expanded(
+                    child: Text(
+                        '${d.name} ${d.dose} — ${d.dueAt.hour}:00 ${d.taken ? '✓' : ''}')),
+                TextButton(
+                  onPressed: d.taken
+                      ? null
+                      : () => setState(() => _meds.markTaken(d.name, d.dueAt)),
+                  child: const Text('Mark taken'),
+                ),
+              ]),
+          ],
+        ),
+      ),
     );
   }
 
