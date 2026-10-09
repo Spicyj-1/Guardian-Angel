@@ -24,7 +24,7 @@ List<NdprGate> pilotGates() => [
       NdprGate(
           id: 'residency',
           requirement:
-              'Data residency decided and documented (decided 09 Oct 2026: europe-west — EU adequacy; no African region for these services).',
+              'Data residency decided and documented (decided 09 Oct 2026: europe-west1 Belgium — EU adequacy; no African region for these services).',
           status: GateStatus.satisfied),
       NdprGate(
           id: 'breach',

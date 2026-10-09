@@ -148,7 +148,7 @@ Every build step must satisfy these five. Binding on design, model, and code:
 1. **Fairness** — must work across patients, body types, and phone placements, not just the training majority. Gate: per-patient (leave-one-patient-out) evaluation before pilot; no ship on global average alone.
 2. **Accountability** — every model artifact traceable (H5 source → TFLite → threshold, all pinned in plan). Decisions and metrics recorded, never silent.
 3. **Transparency** — disclose 47.7% sensitivity / 22.2% precision baseline, detection-not-prediction limit, and false-alarm rate in-app and in store listing. No overstated claims.
-4. **Privacy** — offline-first, local-only storage, NDPR compliance (consent, residency, breach flow, deletion). Backend residency decided 09 Oct 2026: europe-west (EU adequacy; no African region). No health data leaves the device without explicit consent; no secrets in git.
+4. **Privacy** — offline-first, local-only storage, NDPR compliance (consent, residency, breach flow, deletion). Backend residency decided 09 Oct 2026: europe-west1 Belgium (EU adequacy; no African region). No health data leaves the device without explicit consent; no secrets in git.
 5. **Safety** — recall-first threshold (missed seizure worse than false alarm), 12s cancel/countdown against alarm fatigue, escalation chain, monitoring-lapse alerts. Detection aid, never a replacement for supervision.
 
 ---
