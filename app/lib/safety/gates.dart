@@ -23,7 +23,9 @@ List<NdprGate> pilotGates() => [
           requirement: 'Explicit in-app consent recorded (patient + caregiver).'),
       NdprGate(
           id: 'residency',
-          requirement: 'Data residency decided and documented (on-device first).'),
+          requirement:
+              'Data residency decided and documented (decided 09 Oct 2026: europe-west — EU adequacy; no African region for these services).',
+          status: GateStatus.satisfied),
       NdprGate(
           id: 'breach',
           requirement: 'Breach notification flow defined (who is told, how fast).'),

@@ -4,9 +4,9 @@ The app ships with `LocalAccountStub` (works now) + `FirebaseAccountService`
 (swaps in here). To activate cloud auth:
 
 1. **Create project:** console.firebase.google.com → Add project
-   (name e.g. `guardian-angel`). **Region decision (NDPR):** when enabling
-   Firestore, pick the closest adequate region and record it in PRD
-   Appendix C residency gate — see "NDPR region" below.
+   (name e.g. `guardian-angel`). **Region — DECIDED 09 Oct 2026:
+   `europe-west`** (EU adequacy + latency to Nigeria; no African region
+   for Auth/Firestore). Recorded in PRD Appendix C; residency gate satisfied.
 2. **Enable Email/Password:** Build → Authentication → Sign-in method → enable.
 3. **Register apps:** add Android (package name) + iOS (bundle ID) + Web.
    Download `google-services.json` / `GoogleService-Info.plist` and run
