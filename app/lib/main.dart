@@ -9,6 +9,8 @@ import 'data/repository.dart';
 import 'dashboard/trends.dart';
 import 'caregiver/circle.dart';
 import 'caregiver/voice.dart';
+import 'auth/service.dart';
+import 'auth/login_screen.dart';
 
 void main() => runApp(const GuardianAngelApp());
 
@@ -48,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final SeizureLog _seizureLog = InMemorySeizureLog();
   final MedsStore _meds = InMemoryMedsStore();
   final CaregiverCircle _circle = CaregiverCircle();
+  final AuthService _auth = LocalAccountStub();
   final List<CheckinRecord> _checkins = [];
   final TextEditingController _inviteCtrl = TextEditingController();
   String? _inviteError;
@@ -115,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ? _home(navy)
           : _tab == 1
               ? _history(navy)
-              : _care(navy),
+              : _tab == 2
+                  ? _care(navy)
+                  : AccountScreen(auth: _auth),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _tab,
         onTap: (i) => setState(() => _tab = i),
@@ -124,6 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(
               icon: Icon(Icons.people), label: 'Care'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person), label: 'Account'),
         ],
       ),
     );
