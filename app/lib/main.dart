@@ -7,6 +7,8 @@ import 'alert/engine.dart';
 import 'alert/first_aid.dart';
 import 'data/repository.dart';
 import 'dashboard/trends.dart';
+import 'caregiver/circle.dart';
+import 'caregiver/voice.dart';
 
 void main() => runApp(const GuardianAngelApp());
 
@@ -45,6 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   final SeizureLog _seizureLog = InMemorySeizureLog();
   final MedsStore _meds = InMemoryMedsStore();
+  final CaregiverCircle _circle = CaregiverCircle();
+  final List<CheckinRecord> _checkins = [];
+  final TextEditingController _inviteCtrl = TextEditingController();
+  String? _inviteError;
   String? _fallback;
 
   void _log(String s) =>
@@ -105,13 +111,19 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(AppTheme.bg),
         foregroundColor: navy,
       ),
-      body: _tab == 0 ? _home(navy) : _history(navy),
+      body: _tab == 0
+          ? _home(navy)
+          : _tab == 1
+              ? _history(navy)
+              : _care(navy),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _tab,
         onTap: (i) => setState(() => _tab = i),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.people), label: 'Care'),
         ],
       ),
     );
@@ -267,6 +279,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _acceptInvite() {
+    final p = _circle.acceptInvite(_inviteCtrl.text, 'Demo Patient');
+    setState(() {
+      _inviteError =
+          p == null ? 'Code format is XXXX-XXXX (e.g. AB12-CD34).' : null;
+      if (p != null) _inviteCtrl.clear();
+    });
+  }
+
+  void _checkin(CheckinResponse r, String caller) {
+    final rec = CheckinRecord(at: DateTime.now(), response: r, callerType: caller);
+    setState(() => _checkins.insert(0, rec));
+    if (rec.alertsCaregivers) {
+      setState(() => _log('voice check-in HELP by $caller → caregivers alerted'));
+    }
+  }
+
   Widget _history(Color navy) {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -275,6 +304,75 @@ class _HomeScreenState extends State<HomeScreen> {
         if (_events.isEmpty) const Text('Nothing logged yet.'),
         for (final e in _events.reversed)
           Card(child: ListTile(title: Text(e))),
+      ],
+    );
+  }
+
+  Widget _care(Color navy) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text('Caregivers', style: TextStyle(fontSize: 20, color: navy)),
+        if (_circle.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                  'No patients yet. You see nothing until a patient adds you — enter the invite code they shared.'),
+            ),
+          )
+        else
+          for (final p in _circle.patients)
+            Card(
+              child: ListTile(
+                title: Text(p.name),
+                subtitle: Text(
+                    'Invite ${p.inviteCode} • avg ack ${p.avgAckSeconds.toStringAsFixed(0)}s'),
+              ),
+            ),
+        TextField(
+          controller: _inviteCtrl,
+          decoration: InputDecoration(
+            labelText: 'Invite code (XXXX-XXXX)',
+            errorText: _inviteError,
+          ),
+        ),
+        ElevatedButton(
+            onPressed: _acceptInvite, child: const Text('Accept invite')),
+        const SizedBox(height: 12),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Voice check-in (no smartphone needed)',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Call ${IvrScript.checkinNumber}\n'
+                    '1 → patient / 2 → caregiver, then 1 = fine, 2 = help.'),
+              ],
+            ),
+          ),
+        ),
+        Wrap(spacing: 8, children: [
+          ElevatedButton(
+              onPressed: () => _checkin(CheckinResponse.fine, 'patient'),
+              child: const Text('Patient: fine')),
+          ElevatedButton(
+              onPressed: () => _checkin(CheckinResponse.help, 'patient'),
+              child: const Text('Patient: help')),
+          ElevatedButton(
+              onPressed: () => _checkin(CheckinResponse.fine, 'caregiver'),
+              child: const Text('Caregiver: fine')),
+        ]),
+        for (final c in _checkins)
+          Card(
+            child: ListTile(
+              title: Text(
+                  '${c.callerType}: ${c.response.name} → risk ${c.impliedRisk}'),
+              subtitle: Text(c.at.toIso8601String()),
+            ),
+          ),
       ],
     );
   }
