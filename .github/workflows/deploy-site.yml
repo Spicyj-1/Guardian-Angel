@@ -33,6 +33,7 @@ jobs:
           cp prototype/index.html site/prototype/index.html
           cp design-preview.html site/design-preview.html
           cp netlify-drop/index.html site/netlify-index.html
+          printf '<!doctype html><html><head><meta http-equiv="refresh" content="0;url=app/"></head><body><a href="app/">Guardian Angel app</a> · <a href="design-preview.html">design</a> · <a href="prototype/">prototype</a></body></html>' > site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
