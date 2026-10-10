@@ -20,6 +20,18 @@ jobs:
         working-directory: app
         run: |
           flutter create --platforms=android --org com.promivine --project-name guardian_angel .
+          cat >> android/app/build.gradle.kts <<'EOF'
+
+          // flutter_local_notifications requires core library desugaring.
+          android {
+              compileOptions {
+                  isCoreLibraryDesugaringEnabled = true
+              }
+          }
+          dependencies {
+              coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+          }
+          EOF
           mkdir -p ~/.gradle/init.d
           cat > ~/.gradle/init.d/jvm-fix.gradle <<'EOF'
           import org.gradle.api.tasks.compile.JavaCompile
