@@ -37,6 +37,12 @@ jobs:
           }
           EOF
           flutter pub get
+          echo '--- tflite_flutter build.gradle BEFORE ---'
+          TFLITE_GRADLE=$(find ~/.pub-cache/hosted/pub.dev -maxdepth 1 -name 'tflite_flutter-*' -type d | head -1)/android/build.gradle
+          grep -n -i 'compatib\|jvmTarget\|JavaVersion' "$TFLITE_GRADLE" || true
+          sed -i 's/JavaVersion\.VERSION_1_8/JavaVersion.VERSION_17/g; s/jvmTarget = .1\.8./jvmTarget = "17"/g; s/jvmTarget=.1\.8./jvmTarget = "17"/g' "$TFLITE_GRADLE"
+          echo '--- tflite_flutter build.gradle AFTER ---'
+          grep -n -i 'compatib\|jvmTarget\|JavaVersion' "$TFLITE_GRADLE" || true
           flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
