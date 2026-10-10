@@ -23,13 +23,16 @@ jobs:
           cat >> android/build.gradle.kts <<'EOF'
 
           // Unify JVM targets (tflite_flutter pins old defaults; runner uses Java 17).
+          // afterEvaluate: our values must win over the plugin's own script.
           subprojects {
-            tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
-              sourceCompatibility = "17"
-              targetCompatibility = "17"
-            }
-            tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-              kotlinOptions.jvmTarget = "17"
+            afterEvaluate {
+              tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+                sourceCompatibility = "17"
+                targetCompatibility = "17"
+              }
+              tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+                kotlinOptions.jvmTarget = "17"
+              }
             }
           }
           EOF
