@@ -11,6 +11,8 @@ import 'caregiver/circle.dart';
 import 'caregiver/voice.dart';
 import 'auth/service.dart';
 import 'auth/login_screen.dart';
+import 'safety/consent.dart';
+import 'meds/notification.dart' as reminders;
 
 void main() => runApp(const GuardianAngelApp());
 
@@ -51,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final MedsStore _meds = InMemoryMedsStore();
   final CaregiverCircle _circle = CaregiverCircle();
   final AuthService _auth = LocalAccountStub();
+  final ConsentStore _consent = ConsentStore();
+  bool _remindersOn = false;
   final List<CheckinRecord> _checkins = [];
   final TextEditingController _inviteCtrl = TextEditingController();
   String? _inviteError;
@@ -60,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _events.add('${DateTime.now().toIso8601String()} — $s');
 
   void _simulate() {
-    if (!monitoring) return;
+    if (!monitoring || !_consent.granted) return;
     _alerts.start(probability: 0.9, locationNote: 'demo GPS');
     _seizureLog.add(SeizureEvent(
         at: DateTime.now(), durationSeconds: 42, severity: 'moderate'));
@@ -140,6 +144,51 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (!_consent.granted)
+          Card(
+            color: const Color(0xFFE4F1EC),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Before monitoring starts',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(consentCopyV1),
+                  Row(children: [
+                    ElevatedButton(
+                      onPressed: () => setState(() =>
+                          _consent.grant('monitoring+alerts', 'consent-v1')),
+                      child: const Text('Accept'),
+                    ),
+                    TextButton(
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (_) => const AlertDialog(
+                          title: Text('How it works'),
+                          content: Text(
+                              '1. Keep the phone on your body (pocket/waist pouch).\n'
+                              '2. The app watches motion continuously, on-device.\n'
+                              '3. On a possible seizure you get 12s to cancel.\n'
+                              '4. Otherwise caregivers are alerted with your location.'),
+                        ),
+                      ),
+                      child: const Text('How it works'),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Detection aid — not a medical device or supervision replacement. '
+              'Detects seizures with movement only.',
+              style: TextStyle(color: Colors.black54)),
+          ),
+        ),
         Row(children: [
           Icon(monitoring ? Icons.shield : Icons.shield_outlined,
               color: const Color(AppTheme.teal)),
@@ -280,6 +329,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Text('Mark taken'),
                 ),
               ]),
+            Row(children: [
+              ElevatedButton(
+                onPressed: _remindersOn
+                    ? null
+                    : () async {
+                        final ok8 = await reminders.scheduleDailyReminder(
+                            hour: 8,
+                            title: 'Guardian Angel',
+                            body: 'Morning dose due.');
+                        final ok20 = await reminders.scheduleDailyReminder(
+                            hour: 20,
+                            title: 'Guardian Angel',
+                            body: 'Evening dose due.');
+                        if (mounted) {
+                          setState(() => _remindersOn = ok8 && ok20);
+                        }
+                      },
+                child: Text(_remindersOn
+                    ? 'Reminders on'
+                    : 'Enable daily reminders'),
+              ),
+            ]),
           ],
         ),
       ),
