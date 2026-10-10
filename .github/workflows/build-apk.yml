@@ -20,6 +20,25 @@ jobs:
         working-directory: app
         run: |
           flutter create --platforms=android --org com.promivine --project-name guardian_angel .
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/jvm-fix.gradle <<'EOF'
+          import org.gradle.api.tasks.compile.JavaCompile
+          // Fires for every project in every build (incl. Flutter plugin
+          // included-builds, which root subprojects{} cannot reach).
+          gradle.beforeProject { project ->
+            project.afterEvaluate {
+              project.tasks.withType(JavaCompile).configureEach {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+              }
+              project.tasks.configureEach { t ->
+                if (t.name.startsWith('compile') && t.name.contains('Kotlin')) {
+                  t.kotlinOptions.jvmTarget = '17'
+                }
+              }
+            }
+          }
+          EOF
           flutter pub get
           flutter build apk --debug
       - uses: actions/upload-artifact@v4
