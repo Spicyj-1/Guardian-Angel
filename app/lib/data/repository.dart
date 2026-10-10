@@ -37,7 +37,7 @@ abstract class SeizureLog {
 }
 
 abstract class MedsStore {
-  void markTaken(String name, DateTime dueAt);
+  Future<void> markTaken(String name, DateTime dueAt);
   bool taken(String name, DateTime dueAt);
   List<MedDose> today();
   /// Evenings (date-only) with a taken dose. Source of truth for streaks.
@@ -67,7 +67,7 @@ class InMemoryMedsStore implements MedsStore {
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
-  void markTaken(String name, DateTime dueAt) {
+  Future<void> markTaken(String name, DateTime dueAt) async {
     for (final d in _doses) {
       if (d.name == name && d.dueAt == dueAt) d.taken = true;
     }
