@@ -128,6 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   : AccountScreen(auth: _auth),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _tab,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(AppTheme.teal),
+        unselectedItemColor: const Color(0xFF5B7288),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         onTap: (i) => setState(() => _tab = i),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
