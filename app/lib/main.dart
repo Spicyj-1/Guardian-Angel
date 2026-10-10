@@ -1,5 +1,6 @@
 // Guardian Angel — Phase 2 shell: Patient Home + History tab + 12s countdown.
 // Offline, local-only. Detection engine plugs into ModelConfig in Phase 3.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'model/config.dart';
@@ -258,7 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _trendsCard(navy),
         _medsCard(),
         const SizedBox(height: 8),
-        const Text('Local notifications for meds arrive with the mobile build (Phase 5).'),
+        if (kIsWeb)
+          const Text('Local notifications for meds arrive with the mobile build (Phase 5).'),
       ],
     );
   }
