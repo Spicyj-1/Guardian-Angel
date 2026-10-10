@@ -20,6 +20,19 @@ jobs:
         working-directory: app
         run: |
           flutter create --platforms=android --org com.promivine --project-name guardian_angel .
+          cat >> android/build.gradle.kts <<'EOF'
+
+          // Unify JVM targets (tflite_flutter pins old defaults; runner uses Java 17).
+          subprojects {
+            tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+              sourceCompatibility = "17"
+              targetCompatibility = "17"
+            }
+            tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+              kotlinOptions.jvmTarget = "17"
+            }
+          }
+          EOF
           flutter pub get
           flutter build apk --debug
       - uses: actions/upload-artifact@v4
