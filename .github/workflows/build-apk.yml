@@ -40,6 +40,14 @@ jobs:
           }
           EOF
           flutter pub get
+          echo '--- resolving tflite version ---'
+          TFLITE_DIR=$(find ~/.pub-cache/hosted/pub.dev -maxdepth 1 -name 'tflite_flutter-*' -type d | head -1)
+          basename "$TFLITE_DIR"
+          TFLITE_GRADLE="$TFLITE_DIR/android/build.gradle"
+          grep -n -i 'compatib\|jvmTarget\|kotlin' "$TFLITE_GRADLE" || true
+          sed -i 's/JavaVersion\.VERSION_11/JavaVersion.VERSION_17/g' "$TFLITE_GRADLE"
+          echo '--- after patch ---'
+          grep -n -i 'compatib\|jvmTarget\|kotlin' "$TFLITE_GRADLE" || true
           flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
