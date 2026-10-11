@@ -14,7 +14,8 @@ class MobileGpsProvider implements GpsProvider {
       return const AppLocation(method: 'Unknown');
     }
     final pos = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      desiredAccuracy: LocationAccuracy.high,
+      timeLimit: const Duration(seconds: 10),
     );
     return AppLocation(lat: pos.latitude, lng: pos.longitude, method: 'GPS');
   }
