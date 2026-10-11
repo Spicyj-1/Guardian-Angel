@@ -58,6 +58,18 @@ class DriftMedsStore implements MedsStore {
 
   Future<void> refresh() async => _cache = await db.dueMeds();
 
+  @override
+  Future<void> addDose(MedDose dose) async {
+    await db.into(db.medications).insert(store.MedicationsCompanion(
+          name: Value(dose.name),
+          dose: Value(dose.dose),
+          dueAt: Value(dose.dueAt),
+          source: Value(dose.source),
+          verified: Value(dose.verified),
+        ));
+    await refresh();
+  }
+
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
@@ -77,8 +89,20 @@ class DriftMedsStore implements MedsStore {
   @override
   List<MedDose> today() => _cache
       .map((d) => MedDose(
-          name: d.name, dose: d.dose, dueAt: d.dueAt, taken: d.taken))
+          name: d.name,
+          dose: d.dose,
+          dueAt: d.dueAt,
+          taken: d.taken,
+          source: d.source,
+          verified: d.verified))
       .toList();
+
+  @override
+  List<MedDose> history() {
+    final taken = today().where((d) => d.taken).toList()
+      ..sort((a, b) => b.dueAt.compareTo(a.dueAt));
+    return taken;
+  }
 
   @override
   Set<DateTime> takenEvenings() => _cache

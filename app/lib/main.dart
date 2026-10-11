@@ -64,6 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _inviteCtrl = TextEditingController();
   final TextEditingController _latCtrl = TextEditingController();
   final TextEditingController _lngCtrl = TextEditingController();
+  final TextEditingController _medName = TextEditingController();
+  final TextEditingController _medDose = TextEditingController();
+  final TextEditingController _medHour = TextEditingController();
+  bool _showMedHistory = false;
   String? _inviteError;
   String? _fallback;
 
@@ -374,11 +378,16 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Text('Medication — today',
                 style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+                'Add your drugs exactly as the clinic prescribed. A future clinic partner can verify them.',
+                style: TextStyle(color: Colors.black54)),
+            if (doses.isEmpty)
+              const Text('No meds yet — add your first below.'),
             for (final d in doses)
               Row(children: [
                 Expanded(
                     child: Text(
-                        '${d.name} ${d.dose} — ${d.dueAt.hour}:00 ${d.taken ? '✓' : ''}')),
+                        '${d.name} ${d.dose} — ${d.dueAt.hour}:00 ${d.taken ? '✓' : ''}${d.verified ? ' (verified)' : ''}')),
                 TextButton(
                   onPressed: d.taken
                       ? null
@@ -386,6 +395,69 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Text('Mark taken'),
                 ),
               ]),
+            Row(children: [
+              Expanded(
+                child: TextField(
+                  controller: _medName,
+                  decoration:
+                      const InputDecoration(labelText: 'Drug name'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _medDose,
+                  decoration:
+                      const InputDecoration(labelText: 'Dose e.g. 200mg'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _medHour,
+                  keyboardType: TextInputType.number,
+                  decoration:
+                      const InputDecoration(labelText: 'Hour 0-23'),
+                ),
+              ),
+            ]),
+            ElevatedButton(
+              onPressed: () async {
+                final hour = int.tryParse(_medHour.text.trim());
+                if (_medName.text.trim().isEmpty || hour == null) return;
+                final n = DateTime.now();
+                await _meds.addDose(MedDose(
+                  name: _medName.text.trim(),
+                  dose: _medDose.text.trim(),
+                  dueAt: DateTime(
+                      n.year, n.month, n.day, hour.clamp(0, 23)),
+                ));
+                _medName.clear();
+                _medDose.clear();
+                _medHour.clear();
+                if (mounted) setState(() {});
+              },
+              child: const Text('Add medication'),
+            ),
+            Builder(builder: (context) {
+              final hist = _meds.history();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextButton(
+                    onPressed: () => setState(
+                        () => _showMedHistory = !_showMedHistory),
+                    child: Text(_showMedHistory
+                        ? 'Hide medication history'
+                        : 'Medication history (${hist.length})'),
+                  ),
+                  if (_showMedHistory)
+                    for (final h in hist.take(20))
+                      Text(
+                          '${h.dueAt.year}-${h.dueAt.month}-${h.dueAt.day} ${h.dueAt.hour}:00 — ${h.name} ${h.dose} ✓'),
+                ],
+              );
+            }),
             Row(children: [
               ElevatedButton(
                 onPressed: _remindersOn

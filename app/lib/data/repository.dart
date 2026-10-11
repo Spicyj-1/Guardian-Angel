@@ -23,11 +23,15 @@ class MedDose {
   final String dose;
   final DateTime dueAt;
   bool taken;
+  final String source; // 'self' | 'clinic'
+  final bool verified;
   MedDose({
     required this.name,
     required this.dose,
     required this.dueAt,
     this.taken = false,
+    this.source = 'self',
+    this.verified = false,
   });
 }
 
@@ -37,11 +41,14 @@ abstract class SeizureLog {
 }
 
 abstract class MedsStore {
+  Future<void> addDose(MedDose dose);
   Future<void> markTaken(String name, DateTime dueAt);
   bool taken(String name, DateTime dueAt);
   List<MedDose> today();
   /// Evenings (date-only) with a taken dose. Source of truth for streaks.
   Set<DateTime> takenEvenings();
+  /// Full taken history, newest first (patient's medication record).
+  List<MedDose> history();
 }
 
 class InMemorySeizureLog implements SeizureLog {
@@ -54,10 +61,8 @@ class InMemorySeizureLog implements SeizureLog {
 }
 
 class InMemoryMedsStore implements MedsStore {
-  final List<MedDose> _doses = [
-    MedDose(name: 'Carbamazepine', dose: '200mg', dueAt: _todayAt(8)),
-    MedDose(name: 'Carbamazepine', dose: '200mg', dueAt: _todayAt(20)),
-  ];
+  // No demo seeds: the patient adds their own meds as prescribed.
+  final List<MedDose> _doses = [];
   final Set<DateTime> _evenings = {};
   static DateTime _todayAt(int hour) {
     final n = DateTime.now();
@@ -65,6 +70,9 @@ class InMemoryMedsStore implements MedsStore {
   }
 
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  @override
+  Future<void> addDose(MedDose dose) async => _doses.add(dose);
 
   @override
   Future<void> markTaken(String name, DateTime dueAt) async {
@@ -83,4 +91,12 @@ class InMemoryMedsStore implements MedsStore {
 
   @override
   Set<DateTime> takenEvenings() => Set.unmodifiable(_evenings);
+
+  @override
+  List<MedDose> history() {
+    final taken =
+        _doses.where((d) => d.taken).toList()
+          ..sort((a, b) => b.dueAt.compareTo(a.dueAt));
+    return List.unmodifiable(taken);
+  }
 }

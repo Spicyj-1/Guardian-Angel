@@ -22,6 +22,10 @@ class Medications extends Table {
   DateTimeColumn get dueAt => dateTime()();
   BoolColumn get taken => boolean().withDefault(const Constant(false))();
   IntColumn get streakDays => integer().withDefault(const Constant(0))();
+  // Entry source: 'self' (patient-typed, today's path) or 'clinic'
+  // (partner-pushed, verified). See PRD medication workflow note.
+  TextColumn get source => text().withDefault(const Constant('self'))();
+  BoolColumn get verified => boolean().withDefault(const Constant(false))();
   BoolColumn get pendingSync => boolean().withDefault(const Constant(true))();
 }
 
