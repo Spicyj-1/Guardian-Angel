@@ -13,6 +13,8 @@ import 'caregiver/voice.dart';
 import 'auth/service.dart';
 import 'auth/login_screen.dart';
 import 'safety/consent.dart';
+import 'alert/location.dart';
+import 'alert/location_io.dart';
 import 'meds/notification.dart' as reminders;
 
 void main() => runApp(const GuardianAngelApp());
@@ -55,18 +57,25 @@ class _HomeScreenState extends State<HomeScreen> {
   final CaregiverCircle _circle = CaregiverCircle();
   final AuthService _auth = LocalAccountStub();
   final ConsentStore _consent = ConsentStore();
+  final PresetAddress _preset = PresetAddress();
+  AppLocation? _loc;
   bool _remindersOn = false;
   final List<CheckinRecord> _checkins = [];
   final TextEditingController _inviteCtrl = TextEditingController();
+  final TextEditingController _latCtrl = TextEditingController();
+  final TextEditingController _lngCtrl = TextEditingController();
   String? _inviteError;
   String? _fallback;
 
   void _log(String s) =>
       _events.add('${DateTime.now().toIso8601String()} — $s');
 
-  void _simulate() {
+  void _simulate() async {
     if (!monitoring || !_consent.granted) return;
-    _alerts.start(probability: 0.9, locationNote: 'demo GPS');
+    final loc = await resolveLocation(MobileGpsProvider(), _preset);
+    if (!mounted) return;
+    _loc = loc;
+    _alerts.start(probability: 0.9, locationNote: loc.mapsLink);
     _seizureLog.add(SeizureEvent(
         at: DateTime.now(), durationSeconds: 42, severity: 'moderate'));
     setState(() {
@@ -83,14 +92,16 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _countdown--);
       if (_countdown == 0) {
-        final outcome = await _alerts.escalateDue(locationNote: 'demo GPS');
+        final note = _loc?.mapsLink ?? 'no coordinates';
+        final outcome = await _alerts.escalateDue(locationNote: note);
         if (!mounted) return;
         setState(() {
           _log(outcome == AlertOutcome.fallbackShown
               ? 'caregivers exhausted → fallback'
               : 'escalated to caregiver (simulated)');
           if (outcome == AlertOutcome.fallbackShown) {
-            _fallback = _alerts.fallbackText(country: 'Nigeria');
+            _fallback = _alerts.fallbackText(
+                lat: _loc?.lat, lng: _loc?.lng, country: 'Nigeria');
           }
         });
       }
@@ -201,6 +212,45 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
           Text(monitoring ? 'Monitoring ON — on-device' : 'Monitoring OFF',
               style: const TextStyle(fontWeight: FontWeight.bold)),
+        ]),
+        Text(
+          'Location: ${_loc == null ? 'not captured yet' : '${_loc!.method} — ${_loc!.mapsLink}'}',
+          style: const TextStyle(color: Colors.black54),
+        ),
+        Row(children: [
+          Expanded(
+            child: TextField(
+              controller: _latCtrl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration:
+                  const InputDecoration(labelText: 'Preset lat (fallback)'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: _lngCtrl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration:
+                  const InputDecoration(labelText: 'Preset lng (fallback)'),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final lat = double.tryParse(_latCtrl.text.trim());
+              final lng = double.tryParse(_lngCtrl.text.trim());
+              if (lat != null && lng != null) {
+                setState(() {
+                  _preset.lat = lat;
+                  _preset.lng = lng;
+                  _preset.label = 'saved preset';
+                });
+              }
+            },
+            child: const Text('Save'),
+          ),
         ]),
         const SizedBox(height: 8),
         Text(
