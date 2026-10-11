@@ -430,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   name: _medName.text.trim(),
                   dose: _medDose.text.trim(),
                   dueAt: DateTime(
-                      n.year, n.month, n.day, hour.clamp(0, 23)),
+                      n.year, n.month, n.day, hour.clamp(0, 23).toInt()),
                 ));
                 _medName.clear();
                 _medDose.clear();
