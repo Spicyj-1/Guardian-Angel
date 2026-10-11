@@ -1,4 +1,5 @@
 // Guardian Angel — Drift-backed repositories (mobile persistence).
+// Schema v2: meds carry source/verified for the clinic-partner path.
 // Used by the mobile entrypoint (path_provider + NativeDatabase).
 // NOT imported by web builds. In-memory impls remain the web fallback.
 import 'package:drift/drift.dart';
