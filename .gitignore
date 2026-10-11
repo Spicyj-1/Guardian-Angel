@@ -1,6 +1,8 @@
 # Secrets — never commit to public repos
 .env
 .env.*
+!.env.example
+secrets.toml
 *.key
 *.pem
 *.p12
