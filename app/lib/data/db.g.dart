@@ -442,6 +442,23 @@ class $MedicationsTable extends Medications
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('self'));
+  static const VerificationMeta _verifiedMeta =
+      const VerificationMeta('verified');
+  @override
+  late final GeneratedColumn<bool> verified = GeneratedColumn<bool>(
+      'verified', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("verified" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _pendingSyncMeta =
       const VerificationMeta('pendingSync');
   @override
@@ -454,7 +471,7 @@ class $MedicationsTable extends Medications
       defaultValue: const Constant(true));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, name, dose, dueAt, taken, streakDays, pendingSync];
+      [id, name, dose, dueAt, taken, streakDays, source, verified, pendingSync];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -494,6 +511,14 @@ class $MedicationsTable extends Medications
           streakDays.isAcceptableOrUnknown(
               data['streak_days']!, _streakDaysMeta));
     }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    }
+    if (data.containsKey('verified')) {
+      context.handle(_verifiedMeta,
+          verified.isAcceptableOrUnknown(data['verified']!, _verifiedMeta));
+    }
     if (data.containsKey('pending_sync')) {
       context.handle(
           _pendingSyncMeta,
@@ -521,6 +546,10 @@ class $MedicationsTable extends Medications
           .read(DriftSqlType.bool, data['${effectivePrefix}taken'])!,
       streakDays: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}streak_days'])!,
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source'])!,
+      verified: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}verified'])!,
       pendingSync: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
     );
@@ -539,6 +568,8 @@ class Medication extends DataClass implements Insertable<Medication> {
   final DateTime dueAt;
   final bool taken;
   final int streakDays;
+  final String source;
+  final bool verified;
   final bool pendingSync;
   const Medication(
       {required this.id,
@@ -547,6 +578,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       required this.dueAt,
       required this.taken,
       required this.streakDays,
+      required this.source,
+      required this.verified,
       required this.pendingSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -557,6 +590,8 @@ class Medication extends DataClass implements Insertable<Medication> {
     map['due_at'] = Variable<DateTime>(dueAt);
     map['taken'] = Variable<bool>(taken);
     map['streak_days'] = Variable<int>(streakDays);
+    map['source'] = Variable<String>(source);
+    map['verified'] = Variable<bool>(verified);
     map['pending_sync'] = Variable<bool>(pendingSync);
     return map;
   }
@@ -569,6 +604,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       dueAt: Value(dueAt),
       taken: Value(taken),
       streakDays: Value(streakDays),
+      source: Value(source),
+      verified: Value(verified),
       pendingSync: Value(pendingSync),
     );
   }
@@ -583,6 +620,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       dueAt: serializer.fromJson<DateTime>(json['dueAt']),
       taken: serializer.fromJson<bool>(json['taken']),
       streakDays: serializer.fromJson<int>(json['streakDays']),
+      source: serializer.fromJson<String>(json['source']),
+      verified: serializer.fromJson<bool>(json['verified']),
       pendingSync: serializer.fromJson<bool>(json['pendingSync']),
     );
   }
@@ -596,6 +635,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       'dueAt': serializer.toJson<DateTime>(dueAt),
       'taken': serializer.toJson<bool>(taken),
       'streakDays': serializer.toJson<int>(streakDays),
+      'source': serializer.toJson<String>(source),
+      'verified': serializer.toJson<bool>(verified),
       'pendingSync': serializer.toJson<bool>(pendingSync),
     };
   }
@@ -607,6 +648,8 @@ class Medication extends DataClass implements Insertable<Medication> {
           DateTime? dueAt,
           bool? taken,
           int? streakDays,
+          String? source,
+          bool? verified,
           bool? pendingSync}) =>
       Medication(
         id: id ?? this.id,
@@ -615,6 +658,8 @@ class Medication extends DataClass implements Insertable<Medication> {
         dueAt: dueAt ?? this.dueAt,
         taken: taken ?? this.taken,
         streakDays: streakDays ?? this.streakDays,
+        source: source ?? this.source,
+        verified: verified ?? this.verified,
         pendingSync: pendingSync ?? this.pendingSync,
       );
   Medication copyWithCompanion(MedicationsCompanion data) {
@@ -626,6 +671,8 @@ class Medication extends DataClass implements Insertable<Medication> {
       taken: data.taken.present ? data.taken.value : this.taken,
       streakDays:
           data.streakDays.present ? data.streakDays.value : this.streakDays,
+      source: data.source.present ? data.source.value : this.source,
+      verified: data.verified.present ? data.verified.value : this.verified,
       pendingSync:
           data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
     );
@@ -640,14 +687,16 @@ class Medication extends DataClass implements Insertable<Medication> {
           ..write('dueAt: $dueAt, ')
           ..write('taken: $taken, ')
           ..write('streakDays: $streakDays, ')
+          ..write('source: $source, ')
+          ..write('verified: $verified, ')
           ..write('pendingSync: $pendingSync')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, dose, dueAt, taken, streakDays, pendingSync);
+  int get hashCode => Object.hash(
+      id, name, dose, dueAt, taken, streakDays, source, verified, pendingSync);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -658,6 +707,8 @@ class Medication extends DataClass implements Insertable<Medication> {
           other.dueAt == this.dueAt &&
           other.taken == this.taken &&
           other.streakDays == this.streakDays &&
+          other.source == this.source &&
+          other.verified == this.verified &&
           other.pendingSync == this.pendingSync);
 }
 
@@ -668,6 +719,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
   final Value<DateTime> dueAt;
   final Value<bool> taken;
   final Value<int> streakDays;
+  final Value<String> source;
+  final Value<bool> verified;
   final Value<bool> pendingSync;
   const MedicationsCompanion({
     this.id = const Value.absent(),
@@ -676,6 +729,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     this.dueAt = const Value.absent(),
     this.taken = const Value.absent(),
     this.streakDays = const Value.absent(),
+    this.source = const Value.absent(),
+    this.verified = const Value.absent(),
     this.pendingSync = const Value.absent(),
   });
   MedicationsCompanion.insert({
@@ -685,6 +740,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     required DateTime dueAt,
     this.taken = const Value.absent(),
     this.streakDays = const Value.absent(),
+    this.source = const Value.absent(),
+    this.verified = const Value.absent(),
     this.pendingSync = const Value.absent(),
   })  : name = Value(name),
         dueAt = Value(dueAt);
@@ -695,6 +752,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     Expression<DateTime>? dueAt,
     Expression<bool>? taken,
     Expression<int>? streakDays,
+    Expression<String>? source,
+    Expression<bool>? verified,
     Expression<bool>? pendingSync,
   }) {
     return RawValuesInsertable({
@@ -704,6 +763,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       if (dueAt != null) 'due_at': dueAt,
       if (taken != null) 'taken': taken,
       if (streakDays != null) 'streak_days': streakDays,
+      if (source != null) 'source': source,
+      if (verified != null) 'verified': verified,
       if (pendingSync != null) 'pending_sync': pendingSync,
     });
   }
@@ -715,6 +776,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       Value<DateTime>? dueAt,
       Value<bool>? taken,
       Value<int>? streakDays,
+      Value<String>? source,
+      Value<bool>? verified,
       Value<bool>? pendingSync}) {
     return MedicationsCompanion(
       id: id ?? this.id,
@@ -723,6 +786,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
       dueAt: dueAt ?? this.dueAt,
       taken: taken ?? this.taken,
       streakDays: streakDays ?? this.streakDays,
+      source: source ?? this.source,
+      verified: verified ?? this.verified,
       pendingSync: pendingSync ?? this.pendingSync,
     );
   }
@@ -748,6 +813,12 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
     if (streakDays.present) {
       map['streak_days'] = Variable<int>(streakDays.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (verified.present) {
+      map['verified'] = Variable<bool>(verified.value);
+    }
     if (pendingSync.present) {
       map['pending_sync'] = Variable<bool>(pendingSync.value);
     }
@@ -763,6 +834,8 @@ class MedicationsCompanion extends UpdateCompanion<Medication> {
           ..write('dueAt: $dueAt, ')
           ..write('taken: $taken, ')
           ..write('streakDays: $streakDays, ')
+          ..write('source: $source, ')
+          ..write('verified: $verified, ')
           ..write('pendingSync: $pendingSync')
           ..write(')'))
         .toString();
@@ -1291,6 +1364,8 @@ typedef $$MedicationsTableCreateCompanionBuilder = MedicationsCompanion
   required DateTime dueAt,
   Value<bool> taken,
   Value<int> streakDays,
+  Value<String> source,
+  Value<bool> verified,
   Value<bool> pendingSync,
 });
 typedef $$MedicationsTableUpdateCompanionBuilder = MedicationsCompanion
@@ -1301,6 +1376,8 @@ typedef $$MedicationsTableUpdateCompanionBuilder = MedicationsCompanion
   Value<DateTime> dueAt,
   Value<bool> taken,
   Value<int> streakDays,
+  Value<String> source,
+  Value<bool> verified,
   Value<bool> pendingSync,
 });
 
@@ -1330,6 +1407,12 @@ class $$MedicationsTableFilterComposer
 
   ColumnFilters<int> get streakDays => $composableBuilder(
       column: $table.streakDays, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get verified => $composableBuilder(
+      column: $table.verified, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => ColumnFilters(column));
@@ -1362,6 +1445,12 @@ class $$MedicationsTableOrderingComposer
   ColumnOrderings<int> get streakDays => $composableBuilder(
       column: $table.streakDays, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get verified => $composableBuilder(
+      column: $table.verified, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
 }
@@ -1392,6 +1481,12 @@ class $$MedicationsTableAnnotationComposer
 
   GeneratedColumn<int> get streakDays => $composableBuilder(
       column: $table.streakDays, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get verified =>
+      $composableBuilder(column: $table.verified, builder: (column) => column);
 
   GeneratedColumn<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => column);
@@ -1426,6 +1521,8 @@ class $$MedicationsTableTableManager extends RootTableManager<
             Value<DateTime> dueAt = const Value.absent(),
             Value<bool> taken = const Value.absent(),
             Value<int> streakDays = const Value.absent(),
+            Value<String> source = const Value.absent(),
+            Value<bool> verified = const Value.absent(),
             Value<bool> pendingSync = const Value.absent(),
           }) =>
               MedicationsCompanion(
@@ -1435,6 +1532,8 @@ class $$MedicationsTableTableManager extends RootTableManager<
             dueAt: dueAt,
             taken: taken,
             streakDays: streakDays,
+            source: source,
+            verified: verified,
             pendingSync: pendingSync,
           ),
           createCompanionCallback: ({
@@ -1444,6 +1543,8 @@ class $$MedicationsTableTableManager extends RootTableManager<
             required DateTime dueAt,
             Value<bool> taken = const Value.absent(),
             Value<int> streakDays = const Value.absent(),
+            Value<String> source = const Value.absent(),
+            Value<bool> verified = const Value.absent(),
             Value<bool> pendingSync = const Value.absent(),
           }) =>
               MedicationsCompanion.insert(
@@ -1453,6 +1554,8 @@ class $$MedicationsTableTableManager extends RootTableManager<
             dueAt: dueAt,
             taken: taken,
             streakDays: streakDays,
+            source: source,
+            verified: verified,
             pendingSync: pendingSync,
           ),
           withReferenceMapper: (p0) => p0
