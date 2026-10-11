@@ -64,11 +64,6 @@ class InMemoryMedsStore implements MedsStore {
   // No demo seeds: the patient adds their own meds as prescribed.
   final List<MedDose> _doses = [];
   final Set<DateTime> _evenings = {};
-  static DateTime _todayAt(int hour) {
-    final n = DateTime.now();
-    return DateTime(n.year, n.month, n.day, hour);
-  }
-
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
